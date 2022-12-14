@@ -15,6 +15,5 @@ def get_chatterbot_version():
     return config['chatterbot']['version']
 
 
-if __name__ == '__main__':
-    if '--version' in sys.argv:
-        print(get_chatterbot_version())
+if __name__ == '__main__' and '--version' in sys.argv:
+    print(get_chatterbot_version())
