@@ -46,10 +46,9 @@ class ChatBot(object):
             ]
         )
 
-        self.preprocessors = []
-
-        for preprocessor in preprocessors:
-            self.preprocessors.append(utils.import_module(preprocessor))
+        self.preprocessors = [
+            utils.import_module(preprocessor) for preprocessor in preprocessors
+        ]
 
         self.logger = kwargs.get('logger', logging.getLogger(__name__))
 
@@ -82,7 +81,7 @@ class ChatBot(object):
             kwargs['text'] = statement
 
         if isinstance(statement, dict):
-            kwargs.update(statement)
+            kwargs |= statement
 
         if statement is None and 'text' not in kwargs:
             raise self.ChatBotException(
@@ -153,18 +152,14 @@ class ChatBot(object):
                 results.append(output)
 
                 self.logger.info(
-                    '{} selected "{}" as a response with a confidence of {}'.format(
-                        adapter.class_name, output.text, output.confidence
-                    )
+                    f'{adapter.class_name} selected "{output.text}" as a response with a confidence of {output.confidence}'
                 )
 
                 if output.confidence > max_confidence:
                     result = output
                     max_confidence = output.confidence
             else:
-                self.logger.info(
-                    'Not processing the statement using {}'.format(adapter.class_name)
-                )
+                self.logger.info(f'Not processing the statement using {adapter.class_name}')
 
         class ResultOption:
             def __init__(self, statement, count=1):
@@ -176,7 +171,7 @@ class ChatBot(object):
         if len(results) >= 3:
             result_options = {}
             for result_option in results:
-                result_string = result_option.text + ':' + (result_option.in_response_to or '')
+                result_string = f'{result_option.text}:' + (result_option.in_response_to or '')
 
                 if result_string in result_options:
                     result_options[result_string].count += 1
@@ -200,7 +195,7 @@ class ChatBot(object):
             text=result.text,
             in_response_to=input_statement.text,
             conversation=input_statement.conversation,
-            persona='bot:' + self.name
+            persona=f'bot:{self.name}',
         )
 
         response.confidence = result.confidence
@@ -226,10 +221,9 @@ class ChatBot(object):
         elif isinstance(previous_statement, str):
             statement.in_response_to = previous_statement
 
-        self.logger.info('Adding "{}" as a response to "{}"'.format(
-            statement.text,
-            previous_statement_text
-        ))
+        self.logger.info(
+            f'Adding "{statement.text}" as a response to "{previous_statement_text}"'
+        )
 
         # Save the input statement
         return self.storage.create(**statement.serialize())
@@ -252,13 +246,13 @@ class ChatBot(object):
         if latest_statement:
             if latest_statement.in_response_to:
 
-                response_statements = list(self.storage.filter(
-                    conversation=conversation,
-                    text=latest_statement.in_response_to,
-                    order_by=['id']
-                ))
-
-                if response_statements:
+                if response_statements := list(
+                    self.storage.filter(
+                        conversation=conversation,
+                        text=latest_statement.in_response_to,
+                        order_by=['id'],
+                    )
+                ):
                     return response_statements[-1]
                 else:
                     return StatementObject(

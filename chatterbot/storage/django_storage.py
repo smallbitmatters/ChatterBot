@@ -86,8 +86,7 @@ class DjangoStorageAdapter(StorageAdapter):
         if order_by:
             statements = statements.order_by(*order_by)
 
-        for statement in statements.iterator():
-            yield statement
+        yield from statements.iterator()
 
     def create(self, **kwargs):
         """
@@ -102,9 +101,8 @@ class DjangoStorageAdapter(StorageAdapter):
         if 'search_text' not in kwargs:
             kwargs['search_text'] = self.tagger.get_text_index_string(kwargs['text'])
 
-        if 'search_in_response_to' not in kwargs:
-            if kwargs.get('in_response_to'):
-                kwargs['search_in_response_to'] = self.tagger.get_text_index_string(kwargs['in_response_to'])
+        if 'search_in_response_to' not in kwargs and kwargs.get('in_response_to'):
+            kwargs['search_in_response_to'] = self.tagger.get_text_index_string(kwargs['in_response_to'])
 
         statement = Statement(**kwargs)
 

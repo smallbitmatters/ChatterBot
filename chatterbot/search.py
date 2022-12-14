@@ -61,7 +61,7 @@ class IndexedTextSearch:
         }
 
         if additional_parameters:
-            search_parameters.update(additional_parameters)
+            search_parameters |= additional_parameters
 
         statement_list = self.chatbot.storage.filter(**search_parameters)
 
@@ -77,9 +77,7 @@ class IndexedTextSearch:
                 best_confidence_so_far = confidence
                 statement.confidence = confidence
 
-                self.chatbot.logger.info('Similar text found: {} {}'.format(
-                    statement.text, confidence
-                ))
+                self.chatbot.logger.info(f'Similar text found: {statement.text} {confidence}')
 
                 yield statement
 
@@ -135,7 +133,7 @@ class TextSearch:
         }
 
         if additional_parameters:
-            search_parameters.update(additional_parameters)
+            search_parameters |= additional_parameters
 
         statement_list = self.chatbot.storage.filter(**search_parameters)
 
@@ -151,8 +149,6 @@ class TextSearch:
                 best_confidence_so_far = confidence
                 statement.confidence = confidence
 
-                self.chatbot.logger.info('Similar text found: {} {}'.format(
-                    statement.text, confidence
-                ))
+                self.chatbot.logger.info(f'Similar text found: {statement.text} {confidence}')
 
                 yield statement

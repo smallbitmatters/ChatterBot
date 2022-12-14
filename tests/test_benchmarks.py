@@ -4,6 +4,7 @@ various chat bot configurations to help prevent
 performance based regressions when changes are made.
 """
 
+
 from unittest import skip
 from warnings import warn
 from random import choice
@@ -25,8 +26,9 @@ WORDBANK = (
 # Generate a list of random sentences
 STATEMENT_LIST = [
     '{:s} {:s} {:s} {:s} {:s} {:s} {:s} {:s} {:s} {:s}'.format(
-        *[choice(WORDBANK) for __ in range(0, 10)]
-    ) for _ in range(0, 10)
+        *[choice(WORDBANK) for __ in range(10)]
+    )
+    for _ in range(10)
 ]
 
 
